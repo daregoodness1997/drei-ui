@@ -1,34 +1,40 @@
-import { resolve } from 'node:path'
-
 import react from '@vitejs/plugin-react'
+import path from 'node:path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
-import EsLint from 'vite-plugin-linter'
+import { EsLinter, linterPlugin } from 'vite-plugin-linter'
 import tsConfigPaths from 'vite-tsconfig-paths'
-const { EsLinter, linterPlugin } = EsLint
-import * as packageJson from './package.json'
+
 // https://vitejs.dev/config/
 export default defineConfig((configEnv) => ({
   plugins: [
+    dts({
+      insertTypesEntry: true,
+    }),
     react(),
     tsConfigPaths(),
     linterPlugin({
-      include: ['./src}/**/*.{ts,tsx}'],
+      include: ['./src/**/*.{ts,tsx}'],
       linters: [new EsLinter({ configEnv })],
-    }),
-    dts({
-      include: ['src/component/'],
     }),
   ],
   build: {
     lib: {
-      entry: resolve('src', 'component/index.ts'),
-      name: 'DreiUILibrary',
+      entry: path.join(__dirname, './src/index.ts'),
+      name: 'ReactGlobalModal',
       formats: ['es', 'umd'],
-      fileName: (format) => `react-vite-library.${format}.js`,
+      fileName: (format) => `react-global-modal.${format}.js`,
     },
     rollupOptions: {
-      external: [...Object.keys(packageJson.peerDependencies)],
+      external: ["react", "react-dom"],
+      output: {
+        globals: {
+          react: "React",
+          "react-dom": "ReactDOM",
+        },
+      },
     },
+   
   },
+ 
 }))
